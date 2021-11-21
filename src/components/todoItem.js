@@ -14,7 +14,7 @@ export default class TodoItem extends React.Component {
     return [
       <div key="todoItem" style={{ textAlign: 'left', marginBottom: 10 }}>
         <button style={{ marginRight: 6 }} onClick={(e) => this.removeTodo(this.props.id)}>Delete</button>
-        {this.props.todo.text}
+        {this.props.todo.todo}
       </div>
     ];
   }

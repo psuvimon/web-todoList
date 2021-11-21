@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import './App.css';
-// import AddTodo from "../src/components/AddTodo";\
 import Header from './components/header';
 import TodoInput from './components/todoInput';
 import TodoItem from './components/todoItem';
+import { API_URL } from './constants';
 
 class App extends Component {
   constructor(props) {
@@ -18,20 +18,60 @@ class App extends Component {
     this.removeTodo = this.removeTodo.bind(this);
   }
 
+  getData(){
+    fetch(`${API_URL}`, {
+      method: 'get',
+      headers: {
+          'Content-Type': 'application/json'
+      }
+    })
+    .then(res => {
+      return res.json();
+    })
+    .then(data => {
+      let todoList = data;
+      let nextId = data.at(-1).id;
+      this.setState({
+        todoList: todoList,
+        nextId: nextId + 1,
+      });
+    })
+    .catch(err => console.log(err));
+  }
+
+  componentDidMount(){
+    this.getData();
+  }
+
   addTodo(inputText) {
     let todoList = this.state.todoList.slice();
     let nextId = this.state.nextId == null ? 1 : this.state.nextId;
-    todoList.push({ id: nextId, text: inputText });
-    this.setState({
-      todoList: todoList,
-      nextId: nextId + 1,
-    });
+    todoList.push({ id: nextId, todo: inputText });
+    fetch(`${API_URL}`, {
+      method: 'post',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ id: nextId, todo: inputText })
+    })
+    .then(res => {
+      this.getData();
+    })
+    .catch(err => console.log(err));
   }
 
   removeTodo(id) {
-    this.setState({
-      todoList: this.state.todoList.filter((todo, index) => todo.id !== id)
-    });
+    console.log("delete >>>>")
+    fetch(`${API_URL}/${id}`, {
+      method: 'delete',
+      headers: {
+          'Content-Type': 'application/json'
+      }
+    })
+    .then(res => {
+      this.getData();
+    })
+    .catch(err => console.log(err));
   }
 
   render() {
