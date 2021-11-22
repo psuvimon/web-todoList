@@ -11,7 +11,7 @@ class App extends Component {
 
     this.state = {
       todoList: [],
-      nextId: 1
+      nextId: null
     }
 
     this.addTodo = this.addTodo.bind(this);
@@ -29,12 +29,20 @@ class App extends Component {
       return res.json();
     })
     .then(data => {
-      let todoList = data;
-      let nextId = data.at(-1).id;
-      this.setState({
-        todoList: todoList,
-        nextId: nextId + 1,
-      });
+      if(data.length > 0)
+      {
+        let todoList = data;
+        let nextId = data.at(-1).id;
+        this.setState({
+          todoList: todoList,
+          nextId: nextId + 1,
+        });
+      } else {
+        this.setState({
+          todoList: [],
+          nextId: null,
+        });
+      }
     })
     .catch(err => console.log(err));
   }
@@ -61,7 +69,6 @@ class App extends Component {
   }
 
   removeTodo(id) {
-    console.log("delete >>>>")
     fetch(`${API_URL}/${id}`, {
       method: 'delete',
       headers: {
@@ -82,9 +89,9 @@ class App extends Component {
         <TodoInput text="" addTodo={this.addTodo} />
         <ul>
           {
-            this.state.todoList.map((todo) => {
+            this.state.todoList.length > 0 ? this.state.todoList.map((todo) => {
               return <TodoItem key={todo.id} id={todo.id} todo={todo} removeTodo={this.removeTodo} />;
-            })
+            }) : null
           }
         </ul>
       </div>
